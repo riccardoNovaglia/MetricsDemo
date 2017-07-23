@@ -1,8 +1,6 @@
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
@@ -34,8 +32,11 @@ object WebServer {
     implicit val executionContext = system.dispatcher
 
     val route: Route =
-      getItems ~
-      postItem ~
+      get {
+        pathPrefix("getItems") {
+          complete("Alright")
+        }
+      } ~
       get {
         pathPrefix("hello") {
           complete("Hey")
@@ -49,25 +50,5 @@ object WebServer {
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ => system.terminate()) // and shutdown when done
 
-  }
-
-  private def postItem: Route = post {
-    path("create-order") {
-      entity(as[Order]) { order =>
-        val saved: Future[Done] = saveOrder(order)
-        onComplete(saved) { done =>
-          complete("order created")
-        }
-      }
-    }
-  }
-
-  private def getItems: Route = get {
-    pathPrefix("item" / LongNumber) { id =>
-      onSuccess(fetchItem(id)) {
-        case Some(item) => complete(item)
-        case None => complete(StatusCodes.NotFound)
-      }
-    }
   }
 }

@@ -8,26 +8,29 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 
 trait ServiceResponseVerification {
-
   implicit def httpResponseToServiceResponse(response: HttpResponse): ServiceResponse =
     new ServiceResponse(response)
-
-  def isSuccessful(serviceResponse: ServiceResponse): Assertion =
-    serviceResponse.isSuccessful
 }
 
 class ServiceResponse(httpResponse: HttpResponse) extends Matchers with SystemAndMaterializer {
   import actorSystem.dispatcher
   private val timeout: FiniteDuration = 200 millis
 
-  def isSuccessful: Assertion = withClue(s"Was expecting successful response from service, but was \n$this") {
-    httpResponse.status.intValue() should (equal(200) or equal(201))
+  val statusCode: Int     = httpResponse.status.intValue()
+  val body      : String  = entityAsString(httpResponse)
+
+  def isSuccessful(): Assertion = withClue(s"Was expecting successful response from service, but was \n$this") {
+     statusCode should (equal(200) or equal(201))
+  }
+
+  def contains(aString: String): Assertion = {
+    body should include(aString)
   }
 
   override def toString: String =
     s"""
-       |StatusCode: ${httpResponse.status.intValue()}
-       |Body      : ${entityAsString(httpResponse)}
+       |StatusCode: $statusCode
+       |Body      : $body
      """.stripMargin
 
   private def entityAsString(httpResponse: HttpResponse): String = {
