@@ -8,6 +8,7 @@ libraryDependencies := Seq(
   "io.dropwizard.metrics" % "metrics-core" % "3.2.3",
   "com.typesafe.akka" %% "akka-http" % "10.0.9",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.9",
+  "org.json4s" %% "json4s-native" % "3.5.2",
 
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )

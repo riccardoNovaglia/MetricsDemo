@@ -1,40 +1,34 @@
-import akka.Done
-import akka.actor.ActorSystem
+import akka.event.Logging
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
-import spray.json.DefaultJsonProtocol._
 
 import scala.concurrent.Future
 import scala.io.StdIn
+import scala.language.{implicitConversions, postfixOps}
 
-object WebServer {
 
-  // domain model
-  final case class Item(name: String, id: Long)
-  final case class Order(items: List[Item])
+object WebServer extends JsonSupport with WithActorSystemAndMaterializer {
+  import akka.event.LoggingAdapter
 
-  // formats for unmarshalling and marshalling
-  implicit val itemFormat = jsonFormat2(Item)
-  implicit val orderFormat = jsonFormat1(Order)
+  val log: LoggingAdapter = Logging.getLogger(system, this)
 
-  // (fake) async database query api
-  def fetchItem(itemId: Long): Future[Option[Item]] = ???
-  def saveOrder(order: Order): Future[Done] = ???
+  case class Item(name: String, id: Long)
+  case class Order(items: List[Item])
 
   def main(args: Array[String]) {
-
-    // needed to run the route
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-    // needed for the future map/flatmap in the end
-    implicit val executionContext = system.dispatcher
-
     val route: Route =
       get {
         pathPrefix("getItems") {
-          complete("Alright")
+          onSuccess(httpGet("http://localhost:19999/items")) {
+            res: HttpResponse =>
+
+              val items = res.extract[List[Item]]
+              log.info(items.toString)
+
+              complete(asJsonString(items))
+          }
         }
       } ~
       get {
@@ -49,6 +43,8 @@ object WebServer {
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ => system.terminate()) // and shutdown when done
-
   }
+
+  private def httpGet(endpoint: String): Future[HttpResponse] =
+    Http().singleRequest(HttpRequest(uri = endpoint))
 }

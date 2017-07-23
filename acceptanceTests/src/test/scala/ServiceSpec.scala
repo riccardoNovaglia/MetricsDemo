@@ -15,6 +15,7 @@ class ServiceSpec extends AcceptanceTest {
     "Should call service A" in {
       whenReady(service.getItems) { result =>
         result isSuccessful()
+        result contains "Hey"
       }
     }
   }
