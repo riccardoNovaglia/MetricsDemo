@@ -10,7 +10,8 @@ libraryDependencies := Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.9",
   "org.json4s" %% "json4s-native" % "3.5.2",
 
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.0.7"
 )
 
 val ac = (project in file("acceptanceTests"))
