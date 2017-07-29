@@ -16,18 +16,20 @@ trait ServiceInstance extends TestsConfiguration with SystemAndMaterializer {
 class Service(serviceConfiguration: ServiceConfiguration)
              (implicit val actorSystem: ActorSystem, materializer: Materializer) {
   def getItems: Future[HttpResponse] =
-    get(serviceConfiguration.getItemsEndpoint)
+    get(serviceConfiguration.Endpoints.getItems)
 
   def sayHello: Future[HttpResponse] =
-    get(serviceConfiguration.sayHiEndpoint)
+    get(serviceConfiguration.Endpoints.sayHello)
 
   private def get(endpoint: String): Future[HttpResponse] =
     Http().singleRequest(HttpRequest(uri = endpoint))
 }
 
 class ServiceConfiguration(config: Config) {
-  val baseUrl: String = config.getString("baseUrl") + ":" + config.getString("port")
+  val baseUrl: String = config.getString("baseUrl") + "/"
 
-  val getItemsEndpoint: String = baseUrl + config.getString("endpoints.getItems")
-  val sayHiEndpoint: String = baseUrl + config.getString("endpoints.sayHi")
+  object Endpoints {
+    val getItems: String = baseUrl + "items"
+    val sayHello: String = baseUrl + "hello"
+  }
 }

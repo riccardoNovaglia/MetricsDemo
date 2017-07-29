@@ -23,5 +23,5 @@ class ItemsRouting(itemsRepository: ItemsRepository)
 }
 
 class ItemsRepository() {
-  def getItems: Future[List[Item]] = ???
+  def getItems: Future[List[Item]] = Future.successful(List())
 }
