@@ -1,11 +1,13 @@
 package util
 
 import akka.http.scaladsl.model.HttpResponse
+import org.json4s.JValue
+import org.json4s.jackson.JsonMethods
 import org.scalatest.{Assertion, Matchers}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.language.implicitConversions
+import scala.language.{implicitConversions, postfixOps}
 
 trait ServiceResponseVerification {
   implicit def httpResponseToServiceResponse(response: HttpResponse): ServiceResponse =
@@ -16,8 +18,9 @@ class ServiceResponse(httpResponse: HttpResponse) extends Matchers with SystemAn
   import actorSystem.dispatcher
   private val timeout: FiniteDuration = 200 millis
 
-  val statusCode: Int     = httpResponse.status.intValue()
-  val body      : String  = entityAsString(httpResponse)
+  val statusCode      : Int     = httpResponse.status.intValue()
+  val body            : String  = entityAsString(httpResponse)
+  lazy val bodyAsJson : JValue  = JsonMethods.parse(body)
 
   def isSuccessful(): Assertion = withClue(s"Was expecting successful response from service, but was \n$this") {
      statusCode should (equal(200) or equal(201))
@@ -25,6 +28,13 @@ class ServiceResponse(httpResponse: HttpResponse) extends Matchers with SystemAn
 
   def contains(aString: String): Assertion = {
     body should include(aString)
+  }
+
+  def contains(amount: Int = 1, path: String): Assertion = {
+    val itemsAtPath = bodyAsJson \\ path
+    withClue(s"Was expecting to find $amount occurrences of '$path' in response body '$body', but:") {
+      itemsAtPath.children.length should be(amount)
+    }
   }
 
   override def toString: String =

@@ -23,6 +23,9 @@ val ac = (project in file("acceptanceTests"))
     libraryDependencies := Seq(
       "org.scalatest" %% "scalatest" % "3.0.1",
       "com.github.tomakehurst" % "wiremock" % "1.18",
-      "com.typesafe.akka" %% "akka-http" % "10.0.9"
+      "com.typesafe.akka" %% "akka-http" % "10.0.9",
+
+      "org.json4s" %% "json4s-native" % "3.5.2",
+      "org.json4s" %% "json4s-jackson" % "3.5.2"
     )
   )

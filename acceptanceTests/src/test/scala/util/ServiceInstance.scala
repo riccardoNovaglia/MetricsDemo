@@ -13,23 +13,23 @@ trait ServiceInstance extends TestsConfiguration with SystemAndMaterializer {
   val service: Service = new Service(serviceConfiguration)
 }
 
-class Service(serviceConfiguration: ServiceConfiguration)
+class Service(config: ServiceConfiguration)
              (implicit val actorSystem: ActorSystem, materializer: Materializer) {
   def getItems: Future[HttpResponse] =
-    get(serviceConfiguration.Endpoints.getItems)
+    get(Endpoints.getItems)
 
   def sayHello: Future[HttpResponse] =
-    get(serviceConfiguration.Endpoints.sayHello)
+    get(Endpoints.sayHello)
 
   private def get(endpoint: String): Future[HttpResponse] =
     Http().singleRequest(HttpRequest(uri = endpoint))
+
+  object Endpoints {
+    val getItems: String = config.baseUrl + "items"
+    val sayHello: String = config.baseUrl + "hello"
+  }
 }
 
 class ServiceConfiguration(config: Config) {
   val baseUrl: String = config.getString("baseUrl") + "/"
-
-  object Endpoints {
-    val getItems: String = baseUrl + "items"
-    val sayHello: String = baseUrl + "hello"
-  }
 }
