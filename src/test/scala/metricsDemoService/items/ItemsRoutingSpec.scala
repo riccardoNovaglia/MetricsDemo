@@ -1,8 +1,7 @@
-package metricsDemoService
+package metricsDemoService.items
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import metricsDemoService.WebServer.Item
 import org.json4s.{jackson, DefaultFormats}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FreeSpec, Matchers}

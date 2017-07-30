@@ -4,6 +4,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
+import metricsDemoService.items.{Item, ItemsRepository, ItemsRouting}
 
 import scala.io.StdIn
 import scala.language.{implicitConversions, postfixOps}
@@ -14,12 +15,11 @@ object WebServer extends ActorSystemAndMaterializer {
 
   val log: LoggingAdapter = Logging.getLogger(system, this)
 
-  private val itemsRepository: ItemsRepository = new ItemsRepository()
+  private val itemsRepository: ItemsRepository = new ItemsRepository(null)
 
   private val helloRouting: HelloRouting = new HelloRouting()
   private val itemsRouting: ItemsRouting = new ItemsRouting(itemsRepository)
 
-  case class Item(name: String, id: Long)
   case class Order(items: List[Item])
 
   def main(args: Array[String]) {

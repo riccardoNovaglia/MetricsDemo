@@ -1,12 +1,9 @@
-package metricsDemoService
+package metricsDemoService.items
 
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{complete, get, path}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import metricsDemoService.WebServer.Item
 import org.json4s.{jackson, DefaultFormats}
-
-import scala.concurrent.Future
 
 class ItemsRouting(itemsRepository: ItemsRepository)
   extends Json4sSupport {
@@ -20,8 +17,4 @@ class ItemsRouting(itemsRepository: ItemsRepository)
       }
     }
   }
-}
-
-class ItemsRepository() {
-  def getItems: Future[List[Item]] = Future.successful(List())
 }
