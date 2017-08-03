@@ -1,7 +1,7 @@
 package metricsDemoService.http
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpResponse, ResponseEntity}
+import akka.http.scaladsl.model.{ContentType, HttpResponse, ResponseEntity}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.http.scaladsl.unmarshalling.Unmarshaller.NoContentException
 import akka.stream.Materializer
@@ -15,7 +15,7 @@ import scala.concurrent.Future.failed
 import scala.language.postfixOps
 
 
-class ConsumedResponse(httpResponse: HttpResponse)
+case class ConsumedResponse(httpResponse: HttpResponse)
                       (implicit actorSystem: ActorSystem, materializer: Materializer)
   extends Json4sSupport {
   private implicit val formats = DefaultFormats
@@ -42,6 +42,9 @@ class ConsumedResponse(httpResponse: HttpResponse)
           failed(UnmarshallingExceptions.invalidJson(manifest, bodyAsString, parseException))
         case noContentException: NoContentException.type =>
           failed(UnmarshallingExceptions.noContent(manifest, bodyAsString, noContentException))
+        case unsupportedContentException: Unmarshaller.UnsupportedContentTypeException =>
+          failed(UnmarshallingExceptions.unsupportedContentType(manifest, bodyAsString,
+            httpResponse.entity.contentType, unsupportedContentException))
       }
 }
 
@@ -51,11 +54,24 @@ object UnmarshallingExceptions {
   }
 
   def invalidJson[ANY](classManifest: reflect.Manifest[ANY], actualBody: String, cause: Throwable): InvalidJsonException = {
-    new InvalidJsonException(failureMessageFrom(classManifest, actualBody) + " Response body is not valid json.", cause)
+    new InvalidJsonException(
+      failureMessageFrom(classManifest, actualBody) + " Response body is not valid json.",
+      cause
+    )
   }
 
   def noContent[ANY](classManifest: reflect.Manifest[ANY], actualBody: String, cause: Throwable): EmptyResponseException = {
-    new EmptyResponseException(s"Failed to get [${classManifest.toString()}] from response body. The response body is empty.", cause)
+    new EmptyResponseException(
+      s"Failed to get [${classManifest.toString()}] from response body. The response body is empty.",
+      cause
+    )
+  }
+
+  def unsupportedContentType[ANY](classManifest: reflect.Manifest[ANY], actualBody: String, contentType: ContentType, cause: Throwable): UnsupportedContentTypeException = {
+    new UnsupportedContentTypeException(
+      failureMessageFrom(classManifest, actualBody) + s" Was expecting 'application/json' but was '${contentType.toString()}'.",
+      cause
+    )
   }
 
   private def failureMessageFrom[ANY](classManifest: Manifest[ANY], actualBody: String) = {
@@ -73,4 +89,7 @@ class InvalidJsonException(message: String, cause: Throwable)
   extends JsonUnmarshallingException(message, cause)
 
 class EmptyResponseException(message: String, cause: Throwable)
+  extends JsonUnmarshallingException(message, cause)
+
+class UnsupportedContentTypeException(message: String, cause: Throwable)
   extends JsonUnmarshallingException(message, cause)
