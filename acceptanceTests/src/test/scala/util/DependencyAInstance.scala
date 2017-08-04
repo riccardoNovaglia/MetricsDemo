@@ -23,5 +23,5 @@ class DependencyA() extends StubbedEndpointSugar {
       |]
     """.stripMargin
 
-  val getItems: StubbedEndpointDefinition = GET -> "getItems"
+  val getItems: StubbedEndpointDefinition = GET -> "/getItems"
 }
