@@ -2,7 +2,7 @@ package metricsDemoService.items
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import metricsDemoService.TestActorSystemAndMaterializer
-import metricsDemoService.http.ConsumedResponse
+import metricsDemoService.http.{ConsumedResponse, SimpleHttpClient}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization.write
 import org.scalamock.scalatest.MockFactory
@@ -29,7 +29,7 @@ class ItemsClientSpec
   "The Items client" - {
     "should call the items service to get a list of all items" in {
       val response = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, itemsAsJson))
-      httpClient.get _ when "getItems" returns successful(new ConsumedResponse(response))
+      httpClient.get _ when "getItems" returns successful(ConsumedResponse(response))
 
       whenReady(itemsClient.getAllItems) { result =>
         result should be(itemsList)
@@ -38,7 +38,7 @@ class ItemsClientSpec
 
     "should throw an exception if no items are returned" in {
       val response = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, "[]"))
-      httpClient.get _ when "getItems" returns successful(new ConsumedResponse(response))
+      httpClient.get _ when "getItems" returns successful(ConsumedResponse(response))
 
       whenReady(itemsClient.getAllItems.failed) { ex =>
         ex shouldBe a[NoItemsReturnedException]
@@ -55,7 +55,7 @@ class ItemsClientSpec
 
     "should return an exception if the response cannot be turned into items" in {
       val response = HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, """{"bar":"foo"}"""))
-      httpClient.get _ when "getItems" returns successful(new ConsumedResponse(response))
+      httpClient.get _ when "getItems" returns successful(ConsumedResponse(response))
 
       whenReady(itemsClient.getAllItems.failed) { ex =>
         ex shouldBe a[ItemsClientFailureException]

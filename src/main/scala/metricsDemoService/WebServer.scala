@@ -1,21 +1,31 @@
 package metricsDemoService
 
+import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
-import metricsDemoService.items.{Item, ItemsRepository, ItemsRouting}
+import akka.stream.ActorMaterializer
+import metricsDemoService.http.SimpleHttpClient
+import metricsDemoService.items._
 
+import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 import scala.language.{implicitConversions, postfixOps}
 
 
-object WebServer extends ActorSystemAndMaterializer {
+object WebServer {
   import akka.event.LoggingAdapter
+
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+
+  implicit val executionContext: ExecutionContext = system.dispatcher
 
   val log: LoggingAdapter = Logging.getLogger(system, this)
 
-  private val itemsRepository: ItemsRepository = new ItemsRepository(null)
+  private val itemsClient = new ItemsClient(new SimpleHttpClient()(system, materializer, executionContext))(system, materializer, executionContext)
+  private val itemsRepository: ItemsRepository = new ItemsRepository(itemsClient)(executionContext)
 
   private val helloRouting: HelloRouting = new HelloRouting()
   private val itemsRouting: ItemsRouting = new ItemsRouting(itemsRepository)

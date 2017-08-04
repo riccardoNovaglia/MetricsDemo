@@ -1,14 +1,11 @@
 package metricsDemoService.items
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.failed
 
 
-class ItemsRepository(itemsClient: ItemsClient)(implicit val actorSystem: ActorSystem, materializer: Materializer) {
-  import actorSystem.dispatcher
+class ItemsRepository(itemsClient: ItemsClient)
+                     (implicit private val executionContext: ExecutionContext) {
 
   def getItems: Future[List[Item]] =
     itemsClient.getAllItems
@@ -24,4 +21,4 @@ class ItemsRepository(itemsClient: ItemsClient)(implicit val actorSystem: ActorS
 }
 
 case class ItemsRetrievalFailureException(exceptions: Seq[Throwable])
-  extends Exception(s"Getting items from client failed twice with failures: $exceptions")
+  extends Exception(s"Getting items from client failed twice with failures: $exceptions", exceptions.last)

@@ -3,19 +3,18 @@ package metricsDemoService.items
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import metricsDemoService.http.ConsumedResponse
+import metricsDemoService.http.SimpleHttpClient
 import org.json4s.{jackson, DefaultFormats}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{failed, successful}
 
 
 class ItemsClient(httpClient: SimpleHttpClient)
-                 (implicit actorSystem: ActorSystem, materializer: Materializer)
+                 (implicit private val actorSystem: ActorSystem, materializer: Materializer, executionContext: ExecutionContext)
   extends Json4sSupport {
   private implicit val formats = DefaultFormats
   private implicit val serialization = jackson.Serialization
-  import actorSystem.dispatcher
 
   def getAllItems: Future[List[Item]] =
     httpClient.get("getItems")
@@ -34,7 +33,3 @@ case class ItemsClientFailureException(e: Throwable)
 
 case class NoItemsReturnedException()
   extends RuntimeException("No items were returned by the items service.")
-
-class SimpleHttpClient() {
-  def get(uri: String): Future[ConsumedResponse] = ???
-}
