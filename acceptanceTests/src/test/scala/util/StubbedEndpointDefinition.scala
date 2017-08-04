@@ -11,7 +11,7 @@ case class StubbedEndpointDefinition(method: RequestMethod, endpoint: String) {
   def returnsJson(responseBody: String): Unit =
     stubFor(new MappingBuilder(method, urlEqualTo(endpoint))
         .willReturn(aResponse()
-          .withBody(responseBody)))
+          .withBody(responseBody).withHeader("Content-Type", "application/json")))
 }
 
 

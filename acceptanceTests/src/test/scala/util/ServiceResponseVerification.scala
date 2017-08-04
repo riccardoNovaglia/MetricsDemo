@@ -22,7 +22,7 @@ class ServiceResponse(httpResponse: HttpResponse) extends Matchers with SystemAn
   val body            : String  = entityAsString(httpResponse)
   lazy val bodyAsJson : JValue  = JsonMethods.parse(body)
 
-  def isSuccessful(): Assertion = withClue(s"Was expecting successful response from service, but was \n$this") {
+  def isSuccessful(): Assertion = withClue(s"Was expecting successful response from service, but was $this") {
      statusCode should (equal(200) or equal(201))
   }
 

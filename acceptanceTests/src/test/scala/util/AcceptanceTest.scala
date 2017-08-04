@@ -1,5 +1,6 @@
 package util
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.scalatest.{BeforeAndAfter, FreeSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
@@ -22,6 +23,18 @@ trait AcceptanceTest
   WireMock.configureFor("localhost", 19999)
 
   before {
-    WireMock.reset ()
+    Wiremock.start()
+    WireMock.reset()
+  }
+}
+
+object Wiremock {
+  var wiremockServer: WireMockServer = _
+
+  def start(): Unit = {
+    if (wiremockServer == null) {
+      wiremockServer = new WireMockServer(19999)
+      wiremockServer.start()
+    }
   }
 }
