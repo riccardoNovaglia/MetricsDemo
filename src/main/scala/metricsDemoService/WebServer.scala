@@ -8,6 +8,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import metricsDemoService.http.SimpleHttpClient
 import metricsDemoService.items._
+import metricsDemoService.util.Actors
 
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
@@ -19,13 +20,12 @@ object WebServer {
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-
   implicit val executionContext: ExecutionContext = system.dispatcher
+  implicit val actors = new Actors(system, materializer, executionContext)
 
   val log: LoggingAdapter = Logging.getLogger(system, this)
-
-  private val itemsClient = new ItemsClient(new SimpleHttpClient()(system, materializer, executionContext))(system, materializer, executionContext)
-  private val itemsRepository: ItemsRepository = new ItemsRepository(itemsClient)(executionContext)
+  private val itemsClient = new ItemsClient(new SimpleHttpClient())
+  private val itemsRepository: ItemsRepository = new ItemsRepository(itemsClient)
 
   private val helloRouting: HelloRouting = new HelloRouting()
   private val itemsRouting: ItemsRouting = new ItemsRouting(itemsRepository)

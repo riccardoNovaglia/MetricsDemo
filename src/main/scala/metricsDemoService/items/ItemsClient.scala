@@ -1,18 +1,17 @@
 package metricsDemoService.items
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import metricsDemoService.http.SimpleHttpClient
+import metricsDemoService.util.Actors
 import org.json4s.{jackson, DefaultFormats}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
 
-class ItemsClient(httpClient: SimpleHttpClient)
-                 (implicit private val actorSystem: ActorSystem, materializer: Materializer, executionContext: ExecutionContext)
-  extends Json4sSupport {
+class ItemsClient(httpClient: SimpleHttpClient)(implicit private val actors: Actors) extends Json4sSupport {
+  import actors._
+
   private implicit val formats = DefaultFormats
   private implicit val serialization = jackson.Serialization
 

@@ -1,11 +1,13 @@
 package metricsDemoService.items
 
-import scala.concurrent.{ExecutionContext, Future}
+import metricsDemoService.util.Actors
+
+import scala.concurrent.Future
 import scala.concurrent.Future.failed
 
 
-class ItemsRepository(itemsClient: ItemsClient)
-                     (implicit private val executionContext: ExecutionContext) {
+class ItemsRepository(itemsClient: ItemsClient)(implicit private val actors: Actors) {
+  import actors._
 
   def getItems: Future[List[Item]] =
     itemsClient.getAllItems

@@ -1,16 +1,16 @@
 package metricsDemoService.http
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding
-import akka.stream.Materializer
+import metricsDemoService.util.Actors
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
-class SimpleHttpClient()
-                      (implicit private val actorSystem: ActorSystem, materializer: Materializer, executionContext: ExecutionContext) {
+class SimpleHttpClient()(implicit private val actors: Actors) {
+  import actors._
+
   def get(uri: String): Future[ConsumedResponse] =
     Http().singleRequest(RequestBuilding.Get(s"http://localhost:19999/$uri"))
-    .map(res => ConsumedResponse(res))
+      .map(res => ConsumedResponse(res))
 }
