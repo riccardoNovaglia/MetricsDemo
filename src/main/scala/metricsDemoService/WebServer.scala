@@ -6,7 +6,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import metricsDemoService.http.SimpleHttpClient
+import com.typesafe.config.Config
+import metricsDemoService.http.{HttpClientConfig, SimpleHttpClient}
 import metricsDemoService.items._
 import metricsDemoService.util.Actors
 
@@ -23,8 +24,10 @@ object WebServer {
   implicit val executionContext: ExecutionContext = system.dispatcher
   implicit val actors = new Actors(system, materializer, executionContext)
 
+  val config: Config = system.settings.config
+
   val log: LoggingAdapter = Logging.getLogger(system, this)
-  private val itemsClient = new ItemsClient(new SimpleHttpClient())
+  private val itemsClient = new ItemsClient(new SimpleHttpClient(new HttpClientConfig(config), Http())) // TODO: fill config
   private val itemsRepository: ItemsRepository = new ItemsRepository(itemsClient)
 
   private val helloRouting: HelloRouting = new HelloRouting()

@@ -6,7 +6,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.failed
 
 
-class ItemsRepository(itemsClient: ItemsClient)(implicit private val actors: Actors) {
+class ItemsRepository(itemsClient: ItemsRetriever)(implicit private val actors: Actors) {
   import actors._
 
   def getItems: Future[List[Item]] =

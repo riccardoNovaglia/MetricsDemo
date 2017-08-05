@@ -14,7 +14,8 @@ libraryDependencies := Seq(
 
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.scalamock" % "scalamock-scalatest-support_2.12" % "3.6.0" % "test",
-  "com.typesafe.akka" %% "akka-http-testkit" % "10.0.7"
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.0.7" % "test",
+  "com.github.tomakehurst" % "wiremock" % "1.18" % "test"
 )
 
 val ac = (project in file("acceptanceTests"))

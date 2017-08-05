@@ -1,6 +1,7 @@
 package metricsDemoService.items
 
 import metricsDemoService.TestActorSystemAndMaterializer
+import org.json4s.DefaultFormats
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
@@ -14,8 +15,8 @@ class ItemsRepositorySpec
           with ScalaFutures
           with TestActorSystemAndMaterializer
 {
-
-  val itemsClient: ItemsClient = stub[ItemsClient]
+  implicit val formats = DefaultFormats
+  val itemsClient: ItemsRetriever = stub[ItemsRetriever]
 
   val itemsRepo = new ItemsRepository(itemsClient)
   val itemsList = List(Item("name", 123))

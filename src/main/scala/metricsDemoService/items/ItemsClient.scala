@@ -8,15 +8,21 @@ import org.json4s.{jackson, DefaultFormats}
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 
+trait ItemsRetriever {
+  def getAllItems: Future[List[Item]]
+}
 
-class ItemsClient(httpClient: SimpleHttpClient)(implicit private val actors: Actors) extends Json4sSupport {
+
+class ItemsClient(httpClient: SimpleHttpClient)(implicit private val actors: Actors) extends Json4sSupport with ItemsRetriever {
   import actors._
 
   private implicit val formats = DefaultFormats
   private implicit val serialization = jackson.Serialization
 
+  val baseUrl = "http://localhost:19999"
+
   def getAllItems: Future[List[Item]] =
-    httpClient.get("getItems")
+    httpClient.get(s"$baseUrl/getItems")
       .flatMap(res => res.jsonBodyAs[List[Item]].flatMap {
         case Nil => failed(NoItemsReturnedException())
         case items => successful(items)
