@@ -9,7 +9,18 @@ import scala.language.implicitConversions
 
 case class StubbedEndpointDefinition(method: RequestMethod, endpoint: String, dependencyName: String) {
   def returnsJson(responseBody: String): Unit = {
-    println(s"Given $dependencyName -> $method $endpoint will return $responseBody")
+    val oneline = responseBody.split("\n").map(_.trim).mkString("")
+    println(
+      s"""                                  |
+        |                                   |                                                            $dependencyName
+        |                                   |                                       $endpoint                  |
+        |                                   | ----------------------------------------------------------->     |
+        |                                   | <-----------------------------------------------------------     |
+        |                                   |    $oneline     |
+        |                                   |                                                                  |
+      """.stripMargin)
+
+
     stubFor(new MappingBuilder(method, urlEqualTo(endpoint))
         .willReturn(aResponse()
           .withBody(responseBody).withHeader("Content-Type", "application/json")))

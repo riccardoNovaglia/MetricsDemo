@@ -37,6 +37,14 @@ class ServiceResponse(httpResponse: HttpResponse) extends Matchers with SystemAn
     }
   }
 
+  def containsAndGet(amount: Int = 1, path: String) = {
+    val itemsAtPath = bodyAsJson \\ path
+    val assertion = withClue(s"Was expecting to find $amount occurrences of '$path' in response body '$body', but:") {
+      itemsAtPath.children.length should be(amount)
+    }
+    (assertion, itemsAtPath)
+  }
+
   override def toString: String =
     s"""
        |StatusCode: $statusCode

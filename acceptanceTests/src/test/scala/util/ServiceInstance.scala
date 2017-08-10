@@ -5,6 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.Materializer
 import com.typesafe.config.Config
+import org.json4s.DefaultFormats
 import org.scalatest.Assertion
 
 import scala.concurrent.{Await, Future}
@@ -28,7 +29,14 @@ class Service(config: ServiceConfiguration)
   }
 
   def getItems1: Dependable = {
-    println("Getting items from the service,\n")
+    println(
+      s"""
+        |                               Service
+        | ${Endpoints.getItems}       |
+        |  ----------------------------->   |
+        |                                   |
+        |                                   |
+      """.stripMargin)
     new Dependable(Endpoints.getItems)
   }
 
@@ -63,17 +71,30 @@ class Dependable(url: String)(implicit val actorSystem: ActorSystem, val materia
 
 class Thenable(response: ServiceResponse) {
   def Then(verifications: ServiceResponse => Unit): Unit = {
+    print(
+      """
+        | Result:                           |
+        |  <------------------------------  |
+      """.stripMargin)
     verifications(response)
   }
 }
 
 trait Magic {
+  implicit val formats = DefaultFormats
+
   def isSuccessful(implicit result: ServiceResponse): Assertion = {
-    println("Will return successfully (200)")
+    print(
+      """        200                  |
+      """.stripMargin)
     result.isSuccessful()
   }
   def contains(i: Int, str: String)(implicit result: ServiceResponse): Assertion = {
-    println(s"And contain $i instances of $str in ${result.body}")
-    result.contains(i, str)
+    val (assertion, items) = result.containsAndGet(i, str)
+    val strings = (items \ "name").extract[List[String]].mkString(",")
+    print(
+      s"""$i ${str}s: $strings         |
+      """.stripMargin)
+    assertion
   }
 }
