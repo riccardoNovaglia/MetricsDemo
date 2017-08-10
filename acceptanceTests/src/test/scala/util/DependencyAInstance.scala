@@ -9,6 +9,7 @@ trait DependencyAInstance {
 }
 
 class DependencyA() extends StubbedEndpointSugar {
+  implicit val dependencyName = "Dependency A"
   val defaultReply: String =
     """
       |[
