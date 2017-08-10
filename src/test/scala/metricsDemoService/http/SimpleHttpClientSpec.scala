@@ -28,7 +28,7 @@ class SimpleHttpClientSpec
     """.stripMargin)
   val httpClientConfig = new HttpClientConfig(config)
 
-  val client = new SimpleHttpClient(httpClientConfig, Http())
+  val client = new SimpleHttpClient(httpClientConfig, Http(), null)
   val somePath = "/somePath"
   val someBodyString = "hey"
   val someResponse: ResponseDefinitionBuilder = aResponse().withStatus(200).withBody(someBodyString)

@@ -11,6 +11,8 @@ libraryDependencies := Seq(
   "org.json4s" %% "json4s-native" % "3.5.2",
   "org.json4s" %% "json4s-jackson" % "3.5.2",
   "de.heikoseeberger" %% "akka-http-json4s" % "1.17.0",
+  "io.dropwizard.metrics" % "metrics-core" % "3.2.3",
+  "io.dropwizard.metrics" % "metrics-graphite" % "3.2.3",
 
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.scalamock" % "scalamock-scalatest-support_2.12" % "3.6.0" % "test",
